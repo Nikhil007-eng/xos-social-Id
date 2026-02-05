@@ -220,8 +220,36 @@
             }
         }
 
-        // Default Load
-        updateProfile();
+       // --- YOUR ACTUAL DATA ---
+        const myData = {
+            name: "NIKHIL", // Put your name here
+            handle: "nikhil_07", // Put your ID here
+            insta: "https://www.instagram.com/x0s.nikh_07?igsh=ZTc5YzM4ZDVhY3dw",
+            x: "https://x.com/Nikhil_X7",
+            linked: "https://www.linkedin.com/in/nikhil-b-b41641363?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+            snap: "https://snapchat.com/add/your_username"
+        };
+
+        // This function forces your data onto the screen
+        function loadDefaultProfile(data) {
+            document.getElementById('in-name').value = data.name;
+            document.getElementById('in-handle').value = data.handle;
+            document.getElementById('in-insta').value = data.insta;
+            document.getElementById('in-x').value = data.x;
+            document.getElementById('in-linked').value = data.linked;
+            document.getElementById('in-snap').value = data.snap;
+            updateProfile();
+        }
+
+        // Logic to decide what to show
+        window.onload = () => {
+            const saved = localStorage.getItem('user_profile_data');
+            if(saved) {
+                loadDefaultProfile(JSON.parse(saved));
+            } else {
+                loadDefaultProfile(myData);
+            }
+        };
     </script>
 </body>
 </html>
