@@ -243,12 +243,8 @@
 
         // Logic to decide what to show
         window.onload = () => {
-            const saved = localStorage.getItem('user_profile_data');
-            if(saved) {
-                loadDefaultProfile(JSON.parse(saved));
-            } else {
-                loadDefaultProfile(myData);
-            }
+    // This ignores any "saved" data and forces YOUR profile to show every time
+    loadDefaultProfile(myData); 
         };
     </script>
 </body>
