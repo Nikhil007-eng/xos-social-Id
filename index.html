@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Hub | Aesthetic</title>
+    <title>Nikhil | Profile Card</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
@@ -21,20 +21,13 @@
         }
 
         body {
-            background-color: var(--bg);
             background: radial-gradient(circle at top right, #1e293b, #0f172a);
             color: var(--text);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 450px;
-            padding: 20px;
-            text-align: center;
+            overflow: hidden;
         }
 
         @keyframes fadeIn {
@@ -48,32 +41,34 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 32px;
             padding: 40px 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             animation: fadeIn 0.8s ease-out;
         }
 
         .avatar {
-            width: 90px;
-            height: 90px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             background: linear-gradient(45deg, var(--accent), #818cf8);
             margin: 0 auto 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
             box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
         }
 
-        h1 { font-size: 1.8rem; margin-bottom: 4px; }
-        .id-badge { color: var(--accent); font-size: 0.9rem; margin-bottom: 25px; display: block; }
+        h1 { font-size: 1.8rem; margin-bottom: 4px; letter-spacing: 1px; }
+        .id-badge { color: var(--accent); font-size: 0.9rem; margin-bottom: 30px; display: block; opacity: 0.8; }
 
         .links-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 30px;
         }
 
         .link-btn {
@@ -87,164 +82,43 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
-        .link-btn:not(.no-acc):hover {
+        .link-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             transform: translateY(-5px);
             border-color: var(--accent);
         }
 
-        .link-btn i { font-size: 1.5rem; }
-        .link-btn span { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
-
-        .no-acc { opacity: 0.3; cursor: default; }
-
-        .create-btn {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            color: #64748b;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        /* Modal Styles */
-        #form-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
+        .link-btn i { font-size: 1.8rem; }
+        .link-btn span { font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
         
-        .modal-content {
-            background: #1e293b;
-            padding: 30px;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 400px;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            border-radius: 10px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
-        }
+        .snap-btn { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="profile-card">
-            <div class="avatar" id="p-initial">Y</div>
-            <h1 id="p-name">Your Name</h1>
-            <span class="id-badge" id="p-id">@unique_id</span>
+    <div class="profile-card">
+        <div class="avatar">N</div>
+        <h1>NIKHIL</h1>
+        <span class="id-badge">@nikhil_07</span>
 
-            <div class="links-grid" id="links-container">
-                </div>
+        <div class="links-grid">
+            <a href="https://www.instagram.com/x0s.nikh_07?igsh=ZTc5YzM4ZDVhY3dw" target="_blank" class="link-btn">
+                <i class="fa-brands fa-instagram"></i>
+                <span>Instagram</span>
+            </a>
 
-            <div class="create-btn" onclick="toggleForm()">Create/Update Profile +</div>
-        </div>
-    </div>
+            <a href="https://x.com/Nikhil_X7" target="_blank" class="link-btn">
+                <i class="fa-brands fa-x-twitter"></i>
+                <span>X / Twitter</span>
+            </a>
 
-    <div id="form-overlay">
-        <div class="modal-content">
-            <h2 style="margin-bottom: 20px;">Profile Setup</h2>
-            <input type="text" id="in-name" placeholder="Full Name">
-            <input type="text" id="in-handle" placeholder="Unique ID (e.g. rahul_07)">
-            <input type="text" id="in-insta" placeholder="Instagram URL">
-            <input type="text" id="in-x" placeholder="X (Twitter) URL">
-            <input type="text" id="in-linked" placeholder="LinkedIn URL">
-            <input type="text" id="in-snap" placeholder="Snapchat URL">
-            <button onclick="updateProfile()" style="width:100%; padding:15px; border-radius:12px; background:var(--accent); border:none; font-weight:bold; cursor:pointer;">Save Profile</button>
-            <p onclick="toggleForm()" style="text-align:center; margin-top:15px; cursor:pointer; font-size:0.8rem; color:#94a3b8;">Cancel</p>
-        </div>
-    </div>
+            <a href="https://www.linkedin.com/in/nikhil-b-b41641363?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" class="link-btn">
+                <i class="fa-brands fa-linkedin-in"></i>
+                <span>LinkedIn</span>
+            </a>
 
-    <script>
-        const platforms = [
-            { id: 'insta', name: 'Instagram', icon: 'fa-brands fa-instagram' },
-            { id: 'x', name: 'X / Twitter', icon: 'fa-brands fa-x-twitter' },
-            { id: 'linked', name: 'LinkedIn', icon: 'fa-brands fa-linkedin-in' },
-            { id: 'snap', name: 'Snapchat', icon: 'fa-brands fa-snapchat' }
-        ];
-
-        function toggleForm() {
-            const overlay = document.getElementById('form-overlay');
-            overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function updateProfile() {
-            const data = {
-                name: document.getElementById('in-name').value,
-                handle: document.getElementById('in-handle').value,
-                insta: document.getElementById('in-insta').value,
-                x: document.getElementById('in-x').value,
-                linked: document.getElementById('in-linked').value,
-                snap: document.getElementById('in-snap').value
-            };
-
-            if(data.name) {
-                document.getElementById('p-name').innerText = data.name;
-                document.getElementById('p-id').innerText = `@${data.handle || 'user'}`;
-                document.getElementById('p-initial').innerText = data.name.charAt(0).toUpperCase();
-                
-                const container = document.getElementById('links-container');
-                container.innerHTML = '';
-
-                platforms.forEach(p => {
-                    const url = data[p.id];
-                    const div = document.createElement('div');
-                    
-                    if(url && url.trim() !== "") {
-                        div.innerHTML = `<a href="${url}" target="_blank" class="link-btn">
-                            <i class="${p.icon}"></i>
-                            <span>${p.name}</span>
-                        </a>`;
-                    } else {
-                        div.innerHTML = `<div class="link-btn no-acc">
-                            <i class="${p.icon}"></i>
-                            <span>No Account</span>
-                        </div>`;
-                    }
-                    container.appendChild(div.firstChild);
-                });
-                toggleForm();
-            }
-        }
-
-       // --- YOUR ACTUAL DATA ---
-        const myData = {
-            name: "NIKHIL", // Put your name here
-            handle: "nikhil_07", // Put your ID here
-            insta: "https://www.instagram.com/x0s.nikh_07?igsh=ZTc5YzM4ZDVhY3dw",
-            x: "https://x.com/Nikhil_X7",
-            linked: "https://www.linkedin.com/in/nikhil-b-b41641363?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
-            snap: "https://snapchat.com/add/your_username"
-        };
-
-        // This function forces your data onto the screen
-        function loadDefaultProfile(data) {
-            document.getElementById('in-name').value = data.name;
-            document.getElementById('in-handle').value = data.handle;
-            document.getElementById('in-insta').value = data.insta;
-            document.getElementById('in-x').value = data.x;
-            document.getElementById('in-linked').value = data.linked;
-            document.getElementById('in-snap').value = data.snap;
-            updateProfile();
-        }
-
-        // Logic to decide what to show
-       window.onload = () => {
-    loadDefaultProfile(myData); 
-        };
-    </script>
-</body>
-</html>
+            <div class="link-btn snap-btn">
+                <i class="fa-brands f
