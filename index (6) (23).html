@@ -34,7 +34,6 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
 
-        /* Glitch effect for the 'INT' text */
         .glitch-text {
             position: relative;
             color: #3b82f6;
@@ -57,7 +56,6 @@
             100% { clip: rect(30px, 9999px, 40px, 0); }
         }
 
-        /* Loading Bar Animation */
         .progress-bar {
             width: 0%;
             height: 100%;
@@ -70,6 +68,35 @@
             0% { width: 0%; }
             50% { width: 70%; }
             100% { width: 100%; }
+        }
+
+        /* Glassy Liquid Button Effect */
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+        }
+
+        .glass-btn:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.1), 0 0 15px rgba(59, 130, 246, 0.2);
+            transform: scale(1.02);
+        }
+
+        .code-symbol {
+            color: #3b82f6;
+            font-weight: bold;
+            font-size: 10px;
         }
     </style>
 </head>
@@ -85,9 +112,17 @@
             <h1 class="font-brand text-3xl font-bold tracking-tighter mb-1">
                 XOS <span class="glitch-text">INT</span>
             </h1>
-            <p class="text-blue-500/80 text-[10px] font-mono uppercase tracking-widest">
-                Personalised Social Media
-            </p>
+            
+            <div class="flex items-center justify-between">
+                <p class="text-blue-500/80 text-[10px] font-mono uppercase tracking-widest">
+                    Personalised Social Media
+                </p>
+                
+                <a href="https://nikhil007-eng.github.io/xos-social-Id/" target="_blank" class="glass-btn">
+                    <span class="code-symbol font-mono">&lt;/&gt;</span>
+                    <span class="text-[9px] font-mono text-gray-300 uppercase tracking-tighter">Developer</span>
+                </a>
+            </div>
         </div>
 
         <div class="p-8 bg-black/40">
