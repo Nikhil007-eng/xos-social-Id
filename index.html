@@ -247,14 +247,34 @@
             const img = document.getElementById('zoomed-img');
             img.src = src;
             modal.style.display = 'flex';
+            
+            // Add a history state when zoomed
+            history.pushState({ zoomed: true }, "");
+
             setTimeout(() => modal.classList.add('active'), 10);
         }
 
         function closePhoto() {
             const modal = document.getElementById('photo-modal');
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 300);
+            if (modal.classList.contains('active')) {
+                modal.classList.remove('active');
+                setTimeout(() => modal.style.display = 'none', 300);
+                
+                // If manually closed (X or click), remove the history state
+                if (history.state && history.state.zoomed) {
+                    history.back();
+                }
+            }
         }
+
+        // Handle browser back button
+        window.addEventListener('popstate', (event) => {
+            const modal = document.getElementById('photo-modal');
+            if (modal.classList.contains('active')) {
+                modal.classList.remove('active');
+                setTimeout(() => modal.style.display = 'none', 300);
+            }
+        });
     </script>
 </body>
 </html>
