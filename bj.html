@@ -26,15 +26,37 @@
             align-items: center;
         }
 
-        /* --- HEADER --- */
+        /* --- HEADER with notification icon --- */
         header {
             width: 100%;
             max-width: 800px;
             margin-bottom: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             animation: slideUp 0.6s ease-out;
         }
-        h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -1.5px; }
+        .title-block { display: flex; flex-direction: column; }
         .badge { font-size: 8px; letter-spacing: 2px; color: #555; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -1.5px; line-height: 1; }
+
+        .notif-icon {
+            width: 48px; height: 48px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #888;
+        }
+        .notif-icon:hover {
+            border-color: #555;
+            color: #fff;
+            box-shadow: 0 0 20px var(--glow);
+            transform: scale(1.02);
+        }
+        .notif-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
 
         /* --- GRID --- */
         .song-grid {
@@ -68,6 +90,62 @@
         .song-info h3 { font-size: 1rem; font-weight: 500; margin-bottom: 4px; }
         .song-info p  { font-size: 0.7rem; color: #444; text-transform: uppercase; letter-spacing: 1px; }
 
+        /* --- NOTIFICATION OVERLAY (custom window) --- */
+        #notif-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .notif-window {
+            background: var(--card);
+            border: 1px solid var(--border);
+            width: 90%;
+            max-width: 420px;
+            border-radius: 36px;
+            padding: 32px 28px 36px;
+            text-align: left;
+            position: relative;
+            animation: slideUp 0.4s ease;
+        }
+        .notif-back {
+            position: absolute;
+            top: 20px; left: 20px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 50px;
+            padding: 6px 14px 6px 10px;
+            color: #aaa;
+            font-family: var(--font);
+            font-size: 12px; letter-spacing: 1px;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 5px;
+            transition: all 0.2s;
+        }
+        .notif-back:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .notif-back svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; }
+
+        .notif-content { margin-top: 48px; }
+        .notif-content p {
+            font-size: 1.1rem; line-height: 1.5; color: #ccc;
+            margin-bottom: 28px; font-weight: 300;
+        }
+        .dev-link {
+            display: inline-flex; align-items: center;
+            background: #1a1a1a; color: #fff;
+            border: 1px solid #333; border-radius: 60px;
+            padding: 12px 28px; font-size: 0.9rem; font-weight: 500;
+            text-decoration: none; letter-spacing: 0.5px;
+            transition: all 0.2s; gap: 8px;
+        }
+        .dev-link:hover {
+            background: #fff; color: #000; border-color: #fff;
+        }
+
         /* --- PLAYER OVERLAY --- */
         #player-overlay {
             position: fixed;
@@ -92,8 +170,8 @@
             animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* --- BACK BUTTON --- */
-        .back-btn {
+        /* back button inside player (same style, just rename) */
+        .player-back {
             position: absolute;
             top: 20px; left: 20px;
             display: flex; align-items: center; gap: 5px;
@@ -106,11 +184,11 @@
             font-size: 11px; letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.2s;
+            z-index: 10;
         }
-        .back-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-        .back-btn svg { display: block; }
+        .player-back:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .player-back svg { display: block; }
 
-        /* --- YT / ALBUM ART --- */
         .yt-hidden {
             width: 100%; aspect-ratio: 1/1;
             border-radius: 24px;
@@ -129,12 +207,10 @@
             z-index: 2;
             pointer-events: none;
         }
-
-        /* --- TRACK INFO --- */
         .track-title  { font-size: 1.4rem; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.5px; margin-top: 22px; }
         .track-artist { color: #555; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* --- SEEK BAR --- */
+        /* seek bar */
         .seek-row {
             margin-top: 22px;
             display: flex; flex-direction: column; gap: 6px;
@@ -156,38 +232,46 @@
             font-size: 10px; color: #333; letter-spacing: 0.5px;
         }
 
-        /* --- CONTROLS --- */
+        /* --- CONTROLS (only play/pause, prev, next — clean) --- */
         .controls {
             display: flex; align-items: center; justify-content: center;
             gap: 8px; margin-top: 22px;
         }
         .ctrl-btn {
             background: none; border: none; cursor: pointer;
-            color: #444; display: flex; align-items: center; justify-content: center;
+            color: #666; display: flex; align-items: center; justify-content: center;
             border-radius: 50%; width: 44px; height: 44px;
             transition: color 0.2s, background 0.2s;
         }
         .ctrl-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
-        .ctrl-btn.active { color: #fff; }
+
+        /* bigger, clearer prev/next icons (thicker strokes) */
+        .ctrl-btn.prev-next svg {
+            stroke: currentColor;
+            stroke-width: 2.2;
+            fill: currentColor;
+        }
+        .ctrl-btn.prev-next { width: 48px; height: 48px; }
 
         /* play/pause — larger */
         .ctrl-btn.play-pause {
-            width: 58px; height: 58px;
+            width: 60px; height: 60px;
             background: #fff;
             color: #000;
             border-radius: 50%;
-            box-shadow: 0 0 24px rgba(255,255,255,0.15);
+            box-shadow: 0 0 24px rgba(255,255,255,0.2);
             transition: transform 0.15s, box-shadow 0.2s;
         }
         .ctrl-btn.play-pause:hover {
             transform: scale(1.06);
-            box-shadow: 0 0 36px rgba(255,255,255,0.22);
+            box-shadow: 0 0 36px rgba(255,255,255,0.3);
             background: #fff;
             color: #000;
         }
         .ctrl-btn.play-pause:active { transform: scale(0.96); }
+        .ctrl-btn.play-pause svg { width: 26px; height: 26px; }
 
-        /* --- SHIMMER --- */
+        /* loading shimmer */
         .title-loading {
             display: inline-block; width: 130px; height: 18px;
             background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
@@ -212,11 +296,21 @@
 </head>
 <body>
 
+<!-- HEADER with notification icon -->
 <header>
-    <span class="badge">x0 audio Lab</span>
-    <h1>My favourite songs</h1>
+    <div class="title-block">
+        <span class="badge">x0 audio Lab</span>
+        <h1>My favourite songs</h1>
+    </div>
+    <div class="notif-icon" id="notif-icon" onclick="openNotification()" title="info">
+        <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" fill="none"/>
+            <path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-linecap="round"/>
+        </svg>
+    </div>
 </header>
 
+<!-- song grid (2 songs) -->
 <div class="song-grid">
     <div class="song-card" onclick="openGoatedPlayer('3xbWRl-D53Q')">
         <div class="thumb-box">
@@ -239,12 +333,31 @@
     </div>
 </div>
 
+<!-- NOTIFICATION WINDOW (info / developer) -->
+<div id="notif-overlay" onclick="closeNotif(event)">
+    <div class="notif-window" onclick="event.stopPropagation()">
+        <button class="notif-back" onclick="closeNotif(event)">
+            <svg viewBox="0 0 14 14">
+                <path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back
+        </button>
+        <div class="notif-content">
+            <p>My tool plays YouTube in the background, but we render every single bit of music effectively to create a better experience than you can find on the internet.</p>
+            <a href="https://nikhil007-eng.github.io/xos-social-Id/" class="dev-link" target="_blank" rel="noopener noreferrer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
+                developer → nikhil
+            </a>
+        </div>
+    </div>
+</div>
+
 <!-- PLAYER WINDOW -->
 <div id="player-overlay">
     <div class="player-window" onclick="event.stopPropagation()">
 
-        <button class="back-btn" onclick="closePlayer()">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <button class="player-back" onclick="closePlayer()">
+            <svg width="14" height="14" viewBox="0 0 14 14">
                 <path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Back
@@ -269,53 +382,40 @@
             </div>
         </div>
 
-        <!-- CONTROLS -->
+        <!-- CONTROLS: only prev, play/pause, next (clean, no shuffle/repeat) -->
         <div class="controls">
-            <button class="ctrl-btn" id="btn-shuffle" onclick="toggleShuffle()" title="Shuffle">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
-                    <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
-                </svg>
-            </button>
-            <button class="ctrl-btn" onclick="skipPrev()" title="Previous">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <button class="ctrl-btn prev-next" onclick="skipPrev()" title="Previous">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5">
                     <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/>
                 </svg>
             </button>
             <button class="ctrl-btn play-pause" id="btn-play" onclick="togglePlay()" title="Play/Pause">
-                <svg id="icon-play" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <svg id="icon-play" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M8 5v14l11-7z"/>
                 </svg>
-                <svg id="icon-pause" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+                <svg id="icon-pause" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" style="display:none">
                     <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
                 </svg>
             </button>
-            <button class="ctrl-btn" onclick="skipNext()" title="Next">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6 18l8.5-6L6 6v12zm2.5-6 6-4.25v8.5L8.5 12zM16 6h2v12h-2z"/>
-                </svg>
-            </button>
-            <button class="ctrl-btn" id="btn-repeat" onclick="toggleRepeat()" title="Repeat">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
-                    <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+            <button class="ctrl-btn prev-next" onclick="skipNext()" title="Next">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 18l8.5-6L6 6v12zm8.5-12v12h2V6h-2zM16 6h2v12h-2z"/>
                 </svg>
             </button>
         </div>
-
     </div>
 </div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
+    // --- Player state & variables ---
     let player, seekTimer;
     let isPlaying = false;
-    let isShuffle = false;
-    let isRepeat  = false;
     let currentId = null;
 
     const songs = ['3xbWRl-D53Q', 'RT1voph97P8'];
 
+    // --- fetch metadata from noembed ---
     async function fetchMeta(ytId) {
         try {
             const res  = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${ytId}`);
@@ -324,8 +424,11 @@
         } catch { return { title: null, author: null }; }
     }
 
+    // fill grid placeholders
     document.querySelectorAll('.song-card').forEach(card => {
-        const ytId     = card.getAttribute('onclick').match(/'([^']+)'/)[1];
+        const match = card.getAttribute('onclick').match(/'([^']+)'/);
+        if (!match) return;
+        const ytId = match[1];
         const titleEl  = document.getElementById('title-'  + ytId);
         const artistEl = document.getElementById('artist-' + ytId);
         fetchMeta(ytId).then(({ title, author }) => {
@@ -334,6 +437,7 @@
         });
     });
 
+    // --- YouTube API ---
     window.onYouTubeIframeAPIReady = function () {
         player = new YT.Player('yt-player', {
             height: '100%', width: '100%',
@@ -350,11 +454,11 @@
             isPlaying = false; showPlay(); stopSeekTimer();
         } else if (e.data === S.ENDED) {
             isPlaying = false; showPlay(); stopSeekTimer();
-            if (isRepeat) { player.seekTo(0); player.playVideo(); }
-            else skipNext();
+            skipNext();  // auto next when track ends
         }
     }
 
+    // --- open player (main) ---
     function openGoatedPlayer(input) {
         currentId = input;
         document.getElementById('t-name').innerHTML     = '<span class="title-loading"></span>';
@@ -382,6 +486,7 @@
         if (location.hash === '#playing') history.back();
     }
 
+    // play/pause UI
     function togglePlay() {
         if (!player) return;
         isPlaying ? player.pauseVideo() : player.playVideo();
@@ -389,26 +494,22 @@
     function showPlay()  { document.getElementById('icon-play').style.display=''; document.getElementById('icon-pause').style.display='none'; }
     function showPause() { document.getElementById('icon-play').style.display='none'; document.getElementById('icon-pause').style.display=''; }
 
+    // skip functions
     function skipNext() {
+        if (!currentId) return;
         const idx  = songs.indexOf(currentId);
-        const next = isShuffle ? songs[Math.floor(Math.random() * songs.length)] : songs[(idx + 1) % songs.length];
+        const next = songs[(idx + 1) % songs.length];
         openGoatedPlayer(next);
     }
     function skipPrev() {
-        if (player && player.getCurrentTime() > 3) { player.seekTo(0); return; }
+        if (!currentId) return;
+        if (player && player.getCurrentTime && player.getCurrentTime() > 3) { player.seekTo(0); return; }
         const idx  = songs.indexOf(currentId);
-        openGoatedPlayer(songs[(idx - 1 + songs.length) % songs.length]);
+        const prev = songs[(idx - 1 + songs.length) % songs.length];
+        openGoatedPlayer(prev);
     }
 
-    function toggleShuffle() {
-        isShuffle = !isShuffle;
-        document.getElementById('btn-shuffle').classList.toggle('active', isShuffle);
-    }
-    function toggleRepeat() {
-        isRepeat = !isRepeat;
-        document.getElementById('btn-repeat').classList.toggle('active', isRepeat);
-    }
-
+    // seek
     function seekTo(e) {
         if (!player || !player.getDuration) return;
         const rect = document.getElementById('seek-wrap').getBoundingClientRect();
@@ -440,19 +541,57 @@
         return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
     }
 
+    // --- notification window + history API ---
+    function openNotification() {
+        const overlay = document.getElementById('notif-overlay');
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        history.pushState({ notif: true }, '', '#info');
+    }
+
+    function closeNotif(e) {
+        if (e) e.stopPropagation?.();
+        const overlay = document.getElementById('notif-overlay');
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+        if (location.hash === '#info') history.back();
+    }
+
+    // global popstate handling for both overlays
     window.addEventListener('popstate', () => {
-        const overlay = document.getElementById('player-overlay');
-        if (overlay.style.display === 'flex') {
-            overlay.style.display = 'none';
+        const playerOverlay = document.getElementById('player-overlay');
+        const notifOverlay  = document.getElementById('notif-overlay');
+        if (playerOverlay.style.display === 'flex') {
+            playerOverlay.style.display = 'none';
             document.body.style.overflow = '';
             stopSeekTimer();
             if (player && player.stopVideo) player.stopVideo();
             isPlaying = false; showPlay();
         }
+        if (notifOverlay.style.display === 'flex') {
+            notifOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
     });
 
-    if (location.hash === '#playing') history.replaceState(null, '', location.pathname);
-    window.addEventListener('keydown', e => { if (e.key === 'Escape') closePlayer(); });
+    // initial hash cleanup
+    if (location.hash === '#playing' || location.hash === '#info') history.replaceState(null, '', location.pathname);
+
+    // ESC key closes any open overlay
+    window.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            const notif = document.getElementById('notif-overlay');
+            const player = document.getElementById('player-overlay');
+            if (notif.style.display === 'flex') closeNotif(e);
+            else if (player.style.display === 'flex') closePlayer();
+        }
+    });
+
+    // make sure notif overlay doesn't close when clicking outside? we use backdrop click to close: handled in onclick on overlay.
+    // but we want click outside window to close (like modal). we use onclick on overlay to close, but stopPropagation on window.
+    document.getElementById('notif-overlay').addEventListener('click', function(e) {
+        if (e.target === this) closeNotif(e);
+    });
 </script>
 </body>
 </html>
