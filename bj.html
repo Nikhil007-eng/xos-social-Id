@@ -7,11 +7,11 @@
     <style>
         :root {
             --bg: #000000;
-            --accent: #007aff;
+            --accent: #ffffff;
             --card: #0a0a0a;
             --border: #1a1a1a;
             --font: 'Space Grotesk', sans-serif;
-            --glow: rgba(0, 122, 255, 0.2);
+            --glow: rgba(255,255,255,0.08);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -33,11 +33,10 @@
             margin-bottom: 48px;
             animation: slideUp 0.6s ease-out;
         }
-
         h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -1.5px; }
-        .badge { font-size: 8px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .badge { font-size: 8px; letter-spacing: 2px; color: #555; text-transform: uppercase; margin-bottom: 8px; display: block; }
 
-        /* --- GRID LAYOUT --- */
+        /* --- GRID --- */
         .song-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -45,18 +44,14 @@
             width: 100%;
             max-width: 800px;
         }
-
         .song-card {
             cursor: pointer;
             animation: slideUp 0.8s ease-out;
             transition: transform 0.3s ease;
         }
-
         .song-card:active { transform: scale(0.96); }
-
         .thumb-box {
-            width: 100%;
-            aspect-ratio: 1/1;
+            width: 100%; aspect-ratio: 1/1;
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 20px;
@@ -64,19 +59,16 @@
             margin-bottom: 16px;
             transition: all 0.4s ease;
         }
-
-        .song-card:hover .thumb-box { 
-            border-color: var(--accent); 
+        .song-card:hover .thumb-box {
+            border-color: #333;
             box-shadow: 0 0 30px var(--glow);
             transform: translateY(-5px);
         }
-
         .thumb-box img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
-
         .song-info h3 { font-size: 1rem; font-weight: 500; margin-bottom: 4px; }
-        .song-info p { font-size: 0.7rem; color: #444; text-transform: uppercase; letter-spacing: 1px; }
+        .song-info p  { font-size: 0.7rem; color: #444; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- GOATED PLAYER WINDOW --- */
+        /* --- PLAYER OVERLAY --- */
         #player-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -94,161 +86,373 @@
             width: 90%;
             max-width: 400px;
             border-radius: 40px;
-            padding: 40px;
+            padding: 28px 28px 32px;
             text-align: center;
             position: relative;
             animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
+        /* --- BACK BUTTON --- */
+        .back-btn {
+            position: absolute;
+            top: 20px; left: 20px;
+            display: flex; align-items: center; gap: 5px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            padding: 7px 13px 7px 9px;
+            color: rgba(255,255,255,0.4);
+            font-family: var(--font);
+            font-size: 11px; letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .back-btn svg { display: block; }
+
+        /* --- YT / ALBUM ART --- */
         .yt-hidden {
-            width: 100%;
-            aspect-ratio: 1/1;
+            width: 100%; aspect-ratio: 1/1;
             border-radius: 24px;
             overflow: hidden;
             background: #000;
-            margin-bottom: 30px;
-            pointer-events: none; /* Anti-ad/distraction barrier */
-            box-shadow: 0 0 50px rgba(0, 122, 255, 0.1);
+            margin-top: 52px;
+            pointer-events: none;
+            box-shadow: 0 0 50px rgba(255,255,255,0.04);
+            position: relative;
+        }
+        .album-art {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            border-radius: 24px;
+            z-index: 2;
+            pointer-events: none;
         }
 
-        /* NEURAL STATUS INDICATOR */
-        .audio-engine-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            background: rgba(0, 122, 255, 0.05);
-            border: 1px solid rgba(0, 122, 255, 0.15);
-            border-radius: 100px;
-            margin-bottom: 24px;
+        /* --- TRACK INFO --- */
+        .track-title  { font-size: 1.4rem; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.5px; margin-top: 22px; }
+        .track-artist { color: #555; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* --- SEEK BAR --- */
+        .seek-row {
+            margin-top: 22px;
+            display: flex; flex-direction: column; gap: 6px;
         }
-
-        .pulse-dot {
-            width: 6px; height: 6px;
-            background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent);
-            animation: breathe 2s infinite;
-        }
-
-        .engine-text { font-size: 9px; letter-spacing: 1px; color: var(--accent); font-weight: 700; text-transform: uppercase; }
-
-        .track-title { font-size: 1.5rem; font-weight: 500; margin-bottom: 8px; letter-spacing: -0.5px; }
-        .track-artist { color: #555; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; }
-
-        .close-trigger {
-            margin-top: 40px;
-            background: transparent;
-            border: none;
-            color: #333;
-            font-family: var(--font);
-            font-size: 10px;
-            letter-spacing: 2px;
+        .seek-wrap {
+            position: relative; width: 100%; height: 3px;
+            background: #1e1e1e; border-radius: 2px;
             cursor: pointer;
-            transition: 0.3s;
+        }
+        .seek-fill {
+            height: 100%; border-radius: 2px;
+            background: #fff;
+            width: 0%;
+            transition: width 0.4s linear;
+            pointer-events: none;
+        }
+        .seek-times {
+            display: flex; justify-content: space-between;
+            font-size: 10px; color: #333; letter-spacing: 0.5px;
         }
 
-        .close-trigger:hover { color: #fff; }
-
-        @keyframes breathe {
-            0%, 100% { opacity: 0.4; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.3); }
+        /* --- CONTROLS --- */
+        .controls {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; margin-top: 22px;
         }
+        .ctrl-btn {
+            background: none; border: none; cursor: pointer;
+            color: #444; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; width: 44px; height: 44px;
+            transition: color 0.2s, background 0.2s;
+        }
+        .ctrl-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
+        .ctrl-btn.active { color: #fff; }
 
+        /* play/pause — larger */
+        .ctrl-btn.play-pause {
+            width: 58px; height: 58px;
+            background: #fff;
+            color: #000;
+            border-radius: 50%;
+            box-shadow: 0 0 24px rgba(255,255,255,0.15);
+            transition: transform 0.15s, box-shadow 0.2s;
+        }
+        .ctrl-btn.play-pause:hover {
+            transform: scale(1.06);
+            box-shadow: 0 0 36px rgba(255,255,255,0.22);
+            background: #fff;
+            color: #000;
+        }
+        .ctrl-btn.play-pause:active { transform: scale(0.96); }
+
+        /* --- SHIMMER --- */
+        .title-loading {
+            display: inline-block; width: 130px; height: 18px;
+            background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+            background-size: 200% 100%; border-radius: 5px;
+            animation: shimmer 1.4s infinite; vertical-align: middle;
+        }
+        .artist-loading {
+            display: inline-block; width: 80px; height: 10px;
+            background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+            background-size: 200% 100%; border-radius: 4px;
+            animation: shimmer 1.4s infinite; vertical-align: middle;
+        }
+        @keyframes shimmer {
+            from { background-position: 200% 0; }
+            to   { background-position: -200% 0; }
+        }
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            to   { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <span class="badge">Reference Acoustic Lab</span>
-        <h1>My favourite songs</h1>
-    </header>
+<header>
+    <span class="badge">Reference Acoustic Lab</span>
+    <h1>My favourite songs</h1>
+</header>
 
-    <div class="song-grid">
-        <div class="song-card" onclick="openGoatedPlayer('3xbWRl-D53Q', 'Midnight Theory', 'High Fidelity')">
-            <div class="thumb-box">
-                <img src="https://img.youtube.com/vi/3xbWRl-D53Q/maxresdefault.jpg">
-            </div>
-            <div class="song-info">
-                <h3>Track 01</h3>
-                <p>Neural Optimized</p>
-            </div>
+<div class="song-grid">
+    <div class="song-card" onclick="openGoatedPlayer('3xbWRl-D53Q')">
+        <div class="thumb-box">
+            <img src="https://img.youtube.com/vi/3xbWRl-D53Q/maxresdefault.jpg">
         </div>
-
-        <div class="song-card" onclick="openGoatedPlayer('RT1voph97P8', 'Atmospheric Flow', 'Spatial Master')">
-            <div class="thumb-box">
-                <img src="https://img.youtube.com/vi/RT1voph97P8/maxresdefault.jpg">
-            </div>
-            <div class="song-info">
-                <h3>Track 02</h3>
-                <p>Reference Grade</p>
-            </div>
+        <div class="song-info">
+            <h3 id="title-3xbWRl-D53Q"><span class="title-loading"></span></h3>
+            <p id="artist-3xbWRl-D53Q"><span class="artist-loading"></span></p>
         </div>
     </div>
 
-    <div id="player-overlay" onclick="closePlayer()">
-        <div class="player-window" onclick="event.stopPropagation()">
-            
-            <div class="audio-engine-tag">
-                <div class="pulse-dot"></div>
-                <span class="engine-text">Acoustic Neural Realism Active</span>
-            </div>
-
-            <div class="yt-hidden">
-                <div id="yt-player"></div>
-            </div>
-
-            <h2 class="track-title" id="t-name">Track Name</h2>
-            <p class="track-artist" id="t-artist">Artist Name</p>
-
-            <p style="font-size: 9px; color: #222; margin-top: 25px; line-height: 1.5;">
-                Engine is pulling peak bitrate data. Surround phase-shifting is applied. <br>
-                For maximum emotional response, high-end headphones are mandatory.
-            </p>
-
-            <button class="close-trigger" onclick="closePlayer()">TERMINATE SESSION</button>
+    <div class="song-card" onclick="openGoatedPlayer('RT1voph97P8')">
+        <div class="thumb-box">
+            <img src="https://img.youtube.com/vi/RT1voph97P8/maxresdefault.jpg">
+        </div>
+        <div class="song-info">
+            <h3 id="title-RT1voph97P8"><span class="title-loading"></span></h3>
+            <p id="artist-RT1voph97P8"><span class="artist-loading"></span></p>
         </div>
     </div>
+</div>
 
-    <script src="https://www.youtube.com/iframe_api"></script>
-    <script>
-        let player;
+<!-- PLAYER WINDOW -->
+<div id="player-overlay">
+    <div class="player-window" onclick="event.stopPropagation()">
 
-        function openGoatedPlayer(id, title, artist) {
-            document.getElementById('player-overlay').style.display = 'flex';
-            document.getElementById('t-name').innerText = title;
-            document.getElementById('t-artist').innerText = artist;
+        <button class="back-btn" onclick="closePlayer()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back
+        </button>
 
-            if (player) {
-                player.loadVideoById({
-                    videoId: id,
-                    suggestedQuality: 'highres' // Forces the 'goated' audio bitrate
-                });
-            } else {
-                player = new YT.Player('yt-player', {
-                    height: '100%', width: '100%', videoId: id,
-                    playerVars: {
-                        'autoplay': 1,
-                        'controls': 0,
-                        'modestbranding': 1,
-                        'rel': 0,
-                        'iv_load_policy': 3,
-                        'vq': 'hd1080' // High-def video ensures high-def audio stream
-                    }
-                });
-            }
+        <div class="yt-hidden">
+            <img class="album-art" id="album-art" src="" alt="">
+            <div id="yt-player" style="position:absolute;inset:0;width:100%;height:100%;"></div>
+        </div>
+
+        <h2 class="track-title" id="t-name">Track Name</h2>
+        <p class="track-artist" id="t-artist">Artist</p>
+
+        <!-- SEEK BAR -->
+        <div class="seek-row">
+            <div class="seek-wrap" id="seek-wrap" onclick="seekTo(event)">
+                <div class="seek-fill" id="seek-fill"></div>
+            </div>
+            <div class="seek-times">
+                <span id="t-cur">0:00</span>
+                <span id="t-dur">0:00</span>
+            </div>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="controls">
+            <button class="ctrl-btn" id="btn-shuffle" onclick="toggleShuffle()" title="Shuffle">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+                    <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+                </svg>
+            </button>
+            <button class="ctrl-btn" onclick="skipPrev()" title="Previous">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/>
+                </svg>
+            </button>
+            <button class="ctrl-btn play-pause" id="btn-play" onclick="togglePlay()" title="Play/Pause">
+                <svg id="icon-play" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                <svg id="icon-pause" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                </svg>
+            </button>
+            <button class="ctrl-btn" onclick="skipNext()" title="Next">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 18l8.5-6L6 6v12zm2.5-6 6-4.25v8.5L8.5 12zM16 6h2v12h-2z"/>
+                </svg>
+            </button>
+            <button class="ctrl-btn" id="btn-repeat" onclick="toggleRepeat()" title="Repeat">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                    <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                </svg>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+    let player, seekTimer;
+    let isPlaying = false;
+    let isShuffle = false;
+    let isRepeat  = false;
+    let currentId = null;
+
+    const songs = ['3xbWRl-D53Q', 'RT1voph97P8'];
+
+    async function fetchMeta(ytId) {
+        try {
+            const res  = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${ytId}`);
+            const data = await res.json();
+            return { title: data.title || null, author: data.author_name || null };
+        } catch { return { title: null, author: null }; }
+    }
+
+    document.querySelectorAll('.song-card').forEach(card => {
+        const ytId     = card.getAttribute('onclick').match(/'([^']+)'/)[1];
+        const titleEl  = document.getElementById('title-'  + ytId);
+        const artistEl = document.getElementById('artist-' + ytId);
+        fetchMeta(ytId).then(({ title, author }) => {
+            if (titleEl)  titleEl.textContent  = title  || 'Unknown Title';
+            if (artistEl) artistEl.textContent = author || '';
+        });
+    });
+
+    window.onYouTubeIframeAPIReady = function () {
+        player = new YT.Player('yt-player', {
+            height: '100%', width: '100%',
+            playerVars: { autoplay: 0, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3 },
+            events: { onStateChange: onPlayerState }
+        });
+    };
+
+    function onPlayerState(e) {
+        const S = YT.PlayerState;
+        if (e.data === S.PLAYING) {
+            isPlaying = true; showPause(); startSeekTimer();
+        } else if (e.data === S.PAUSED || e.data === S.BUFFERING) {
+            isPlaying = false; showPlay(); stopSeekTimer();
+        } else if (e.data === S.ENDED) {
+            isPlaying = false; showPlay(); stopSeekTimer();
+            if (isRepeat) { player.seekTo(0); player.playVideo(); }
+            else skipNext();
         }
+    }
 
-        function closePlayer() {
-            document.getElementById('player-overlay').style.display = 'none';
-            if(player) player.stopVideo();
+    function openGoatedPlayer(input) {
+        currentId = input;
+        document.getElementById('t-name').innerHTML     = '<span class="title-loading"></span>';
+        document.getElementById('t-artist').textContent = '…';
+        document.getElementById('album-art').src        = `https://img.youtube.com/vi/${input}/maxresdefault.jpg`;
+        resetSeek();
+        document.getElementById('player-overlay').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        history.pushState({ player: true }, '', '#playing');
+        fetchMeta(input).then(({ title, author }) => {
+            document.getElementById('t-name').textContent   = title  || 'Unknown Title';
+            document.getElementById('t-artist').textContent = author || '';
+        });
+        if (player && player.loadVideoById) {
+            player.loadVideoById({ videoId: input, suggestedQuality: 'hd1080' });
         }
+    }
 
-        window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closePlayer(); });
-    </script>
+    function closePlayer() {
+        document.getElementById('player-overlay').style.display = 'none';
+        document.body.style.overflow = '';
+        stopSeekTimer();
+        if (player && player.stopVideo) player.stopVideo();
+        isPlaying = false; showPlay();
+        if (location.hash === '#playing') history.back();
+    }
+
+    function togglePlay() {
+        if (!player) return;
+        isPlaying ? player.pauseVideo() : player.playVideo();
+    }
+    function showPlay()  { document.getElementById('icon-play').style.display=''; document.getElementById('icon-pause').style.display='none'; }
+    function showPause() { document.getElementById('icon-play').style.display='none'; document.getElementById('icon-pause').style.display=''; }
+
+    function skipNext() {
+        const idx  = songs.indexOf(currentId);
+        const next = isShuffle ? songs[Math.floor(Math.random() * songs.length)] : songs[(idx + 1) % songs.length];
+        openGoatedPlayer(next);
+    }
+    function skipPrev() {
+        if (player && player.getCurrentTime() > 3) { player.seekTo(0); return; }
+        const idx  = songs.indexOf(currentId);
+        openGoatedPlayer(songs[(idx - 1 + songs.length) % songs.length]);
+    }
+
+    function toggleShuffle() {
+        isShuffle = !isShuffle;
+        document.getElementById('btn-shuffle').classList.toggle('active', isShuffle);
+    }
+    function toggleRepeat() {
+        isRepeat = !isRepeat;
+        document.getElementById('btn-repeat').classList.toggle('active', isRepeat);
+    }
+
+    function seekTo(e) {
+        if (!player || !player.getDuration) return;
+        const rect = document.getElementById('seek-wrap').getBoundingClientRect();
+        const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        player.seekTo(pct * player.getDuration(), true);
+        updateSeekUI(pct * player.getDuration(), player.getDuration());
+    }
+    function startSeekTimer() {
+        stopSeekTimer();
+        seekTimer = setInterval(() => {
+            if (!player || !player.getCurrentTime) return;
+            updateSeekUI(player.getCurrentTime(), player.getDuration());
+        }, 500);
+    }
+    function stopSeekTimer() { clearInterval(seekTimer); }
+    function updateSeekUI(cur, dur) {
+        if (!dur) return;
+        document.getElementById('seek-fill').style.width = (cur / dur * 100) + '%';
+        document.getElementById('t-cur').textContent = fmt(cur);
+        document.getElementById('t-dur').textContent = fmt(dur);
+    }
+    function resetSeek() {
+        document.getElementById('seek-fill').style.width = '0%';
+        document.getElementById('t-cur').textContent = '0:00';
+        document.getElementById('t-dur').textContent = '0:00';
+    }
+    function fmt(s) {
+        s = Math.floor(s);
+        return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    }
+
+    window.addEventListener('popstate', () => {
+        const overlay = document.getElementById('player-overlay');
+        if (overlay.style.display === 'flex') {
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+            stopSeekTimer();
+            if (player && player.stopVideo) player.stopVideo();
+            isPlaying = false; showPlay();
+        }
+    });
+
+    if (location.hash === '#playing') history.replaceState(null, '', location.pathname);
+    window.addEventListener('keydown', e => { if (e.key === 'Escape') closePlayer(); });
+</script>
 </body>
 </html>
