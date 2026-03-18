@@ -38,8 +38,7 @@
             overflow-x: hidden;
         }
 
-        .font-brand { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
-
+        /* --- PROFILE CARD --- */
         .profile-card {
             background: var(--glass);
             backdrop-filter: blur(30px) saturate(200%);
@@ -60,6 +59,65 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
+        /* --- iOS GLASS FLOATING BUTTON --- */
+        .fav-music-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-decoration: none;
+            z-index: 20;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-circle {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 0.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .note-icon {
+            width: 18px;
+            height: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.3s ease;
+        }
+
+        .fav-music-btn:hover .glass-circle {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .fav-music-btn:hover .note-icon { color: var(--accent); }
+        .fav-music-btn:active { transform: scale(0.9); }
+
+        .btn-badge {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            opacity: 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .fav-music-btn:hover .btn-badge { opacity: 1; bottom: -28px; }
+
+        /* --- AVATAR & TYPOGRAPHY --- */
         .avatar-container {
             width: 110px;
             height: 110px;
@@ -84,6 +142,7 @@
         h1 { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; letter-spacing: 3px; font-weight: 700; margin-bottom: 4px; }
         .id-badge { color: var(--accent); font-size: 0.8rem; font-family: 'Fira Code', monospace; opacity: 0.7; margin-bottom: 30px; display: block; }
 
+        /* --- GRID --- */
         .links-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -105,21 +164,20 @@
         }
 
         .link-btn:hover, .link-btn:active {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.08);
             border-color: var(--accent);
             color: white;
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
         .link-btn i { font-size: 1.4rem; }
         .link-btn span { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
 
-        /* FLOATING ZOOM MODAL */
+        /* --- MODAL --- */
         #photo-modal {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             backdrop-filter: blur(20px);
             z-index: 100;
             display: none;
@@ -137,15 +195,12 @@
             border-radius: 24px;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 40px rgba(59, 130, 246, 0.2);
             transform: scale(0.8);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
         }
 
         .modal-content img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Close Button (X) */
         .close-modal {
             position: absolute;
             top: 20px;
@@ -153,22 +208,12 @@
             width: 40px;
             height: 40px;
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.2rem;
             cursor: pointer;
-            z-index: 110;
-            transition: all 0.3s ease;
-        }
-
-        .close-modal:hover {
-            background: rgba(255, 0, 0, 0.2);
-            border-color: rgba(255, 0, 0, 0.5);
         }
 
         #photo-modal.active { display: flex; opacity: 1; }
@@ -181,26 +226,30 @@
             opacity: 0.1;
             animation: scanMove 4s infinite linear;
         }
-        @keyframes scanMove {
-            0% { top: 0; } 100% { top: 100%; }
-        }
+        @keyframes scanMove { 0% { top: 0; } 100% { top: 100%; } }
     </style>
 </head>
 <body>
 
     <div id="photo-modal" onclick="closePhoto()">
-        <div class="close-modal" onclick="closePhoto()">
-            <i class="fa-solid fa-xmark"></i>
-        </div>
-        
+        <div class="close-modal"><i class="fa-solid fa-xmark"></i></div>
         <div class="modal-content" onclick="event.stopPropagation()">
-            <img id="zoomed-img" src="1771084954176 (1).png" alt="Nikhil Zoomed">
+            <img id="zoomed-img" src="1771084954176 (1).png" alt="Zoomed">
         </div>
     </div>
 
     <div class="profile-card">
         <div class="scan-line"></div>
         
+        <a href="bj.html" target="_blank" class="fav-music-btn">
+            <div class="glass-circle">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="note-icon">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                </svg>
+            </div>
+            <span class="btn-badge">Fav Music</span>
+        </a>
+
         <div class="avatar-container" onclick="zoomPhoto('1771084954176 (1).png')">
             <img src="1771084954176 (1).png" alt="Nikhil" class="avatar">
         </div>
@@ -213,27 +262,22 @@
                 <i class="fa-brands fa-instagram"></i>
                 <span>Instagram</span>
             </a>
-
             <a href="https://x.com/Nikhil_X7" target="_blank" class="link-btn">
                 <i class="fa-brands fa-x-twitter"></i>
                 <span>X / Twitter</span>
             </a>
-
             <a href="https://www.linkedin.com/in/nikhil-b-b41641363" target="_blank" class="link-btn">
                 <i class="fa-brands fa-linkedin-in"></i>
                 <span>LinkedIn</span>
             </a>
-
             <a href="https://pin.it/5IbyqmexC" target="_blank" class="link-btn">
                 <i class="fa-brands fa-pinterest"></i>
                 <span>Pinterest</span>
             </a>
-    
             <a href="https://discord.gg/QyHXBqS3H" target="_blank" class="link-btn">
                 <i class="fa-brands fa-discord"></i>
                 <span>Discord</span>
             </a>
-
             <a href="index (6) (24).html" target="_blank" class="link-btn">
                 <i class="fa-solid fa-microchip"></i>
                 <span>Utility</span>
@@ -247,10 +291,7 @@
             const img = document.getElementById('zoomed-img');
             img.src = src;
             modal.style.display = 'flex';
-            
-            // Add a history state when zoomed
             history.pushState({ zoomed: true }, "");
-
             setTimeout(() => modal.classList.add('active'), 10);
         }
 
@@ -259,16 +300,11 @@
             if (modal.classList.contains('active')) {
                 modal.classList.remove('active');
                 setTimeout(() => modal.style.display = 'none', 300);
-                
-                // If manually closed (X or click), remove the history state
-                if (history.state && history.state.zoomed) {
-                    history.back();
-                }
+                if (history.state && history.state.zoomed) history.back();
             }
         }
 
-        // Handle browser back button
-        window.addEventListener('popstate', (event) => {
+        window.addEventListener('popstate', () => {
             const modal = document.getElementById('photo-modal');
             if (modal.classList.contains('active')) {
                 modal.classList.remove('active');
@@ -276,7 +312,5 @@
             }
         });
     </script>
-    <script data-goatcounter="https://xos-int.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
