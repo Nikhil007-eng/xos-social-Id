@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000;
+            --accent: #007aff;
+            --card: #0a0a0a;
+            --border: #1a1a1a;
+            --font: 'Space Grotesk', sans-serif;
+            --glow: rgba(0, 122, 255, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg);
+            color: #ffffff;
+            font-family: var(--font);
+            padding: 60px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- HEADER --- */
+        header {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 48px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -1.5px; }
+        .badge { font-size: 8px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; display: block; }
+
+        /* --- GRID LAYOUT --- */
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 32px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .song-card {
+            cursor: pointer;
+            animation: slideUp 0.8s ease-out;
+            transition: transform 0.3s ease;
+        }
+
+        .song-card:active { transform: scale(0.96); }
+
+        .thumb-box {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            transition: all 0.4s ease;
+        }
+
+        .song-card:hover .thumb-box { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 30px var(--glow);
+            transform: translateY(-5px);
+        }
+
+        .thumb-box img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+
+        .song-info h3 { font-size: 1rem; font-weight: 500; margin-bottom: 4px; }
+        .song-info p { font-size: 0.7rem; color: #444; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- GOATED PLAYER WINDOW --- */
+        #player-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(30px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .player-window {
+            background: var(--card);
+            border: 1px solid var(--border);
+            width: 90%;
+            max-width: 400px;
+            border-radius: 40px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .yt-hidden {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 30px;
+            pointer-events: none; /* Anti-ad/distraction barrier */
+            box-shadow: 0 0 50px rgba(0, 122, 255, 0.1);
+        }
+
+        /* NEURAL STATUS INDICATOR */
+        .audio-engine-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(0, 122, 255, 0.05);
+            border: 1px solid rgba(0, 122, 255, 0.15);
+            border-radius: 100px;
+            margin-bottom: 24px;
+        }
+
+        .pulse-dot {
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+            animation: breathe 2s infinite;
+        }
+
+        .engine-text { font-size: 9px; letter-spacing: 1px; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+
+        .track-title { font-size: 1.5rem; font-weight: 500; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .track-artist { color: #555; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        .close-trigger {
+            margin-top: 40px;
+            background: transparent;
+            border: none;
+            color: #333;
+            font-family: var(--font);
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-trigger:hover { color: #fff; }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="badge">Reference Acoustic Lab</span>
+        <h1>My favourite songs</h1>
+    </header>
+
+    <div class="song-grid">
+        <div class="song-card" onclick="openGoatedPlayer('3xbWRl-D53Q', 'Midnight Theory', 'High Fidelity')">
+            <div class="thumb-box">
+                <img src="https://img.youtube.com/vi/3xbWRl-D53Q/maxresdefault.jpg">
+            </div>
+            <div class="song-info">
+                <h3>Track 01</h3>
+                <p>Neural Optimized</p>
+            </div>
+        </div>
+
+        <div class="song-card" onclick="openGoatedPlayer('RT1voph97P8', 'Atmospheric Flow', 'Spatial Master')">
+            <div class="thumb-box">
+                <img src="https://img.youtube.com/vi/RT1voph97P8/maxresdefault.jpg">
+            </div>
+            <div class="song-info">
+                <h3>Track 02</h3>
+                <p>Reference Grade</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="player-overlay" onclick="closePlayer()">
+        <div class="player-window" onclick="event.stopPropagation()">
+            
+            <div class="audio-engine-tag">
+                <div class="pulse-dot"></div>
+                <span class="engine-text">Acoustic Neural Realism Active</span>
+            </div>
+
+            <div class="yt-hidden">
+                <div id="yt-player"></div>
+            </div>
+
+            <h2 class="track-title" id="t-name">Track Name</h2>
+            <p class="track-artist" id="t-artist">Artist Name</p>
+
+            <p style="font-size: 9px; color: #222; margin-top: 25px; line-height: 1.5;">
+                Engine is pulling peak bitrate data. Surround phase-shifting is applied. <br>
+                For maximum emotional response, high-end headphones are mandatory.
+            </p>
+
+            <button class="close-trigger" onclick="closePlayer()">TERMINATE SESSION</button>
+        </div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        let player;
+
+        function openGoatedPlayer(id, title, artist) {
+            document.getElementById('player-overlay').style.display = 'flex';
+            document.getElementById('t-name').innerText = title;
+            document.getElementById('t-artist').innerText = artist;
+
+            if (player) {
+                player.loadVideoById({
+                    videoId: id,
+                    suggestedQuality: 'highres' // Forces the 'goated' audio bitrate
+                });
+            } else {
+                player = new YT.Player('yt-player', {
+                    height: '100%', width: '100%', videoId: id,
+                    playerVars: {
+                        'autoplay': 1,
+                        'controls': 0,
+                        'modestbranding': 1,
+                        'rel': 0,
+                        'iv_load_policy': 3,
+                        'vq': 'hd1080' // High-def video ensures high-def audio stream
+                    }
+                });
+            }
+        }
+
+        function closePlayer() {
+            document.getElementById('player-overlay').style.display = 'none';
+            if(player) player.stopVideo();
+        }
+
+        window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closePlayer(); });
+    </script>
+</body>
+</html>
