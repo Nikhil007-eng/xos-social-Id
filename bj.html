@@ -10,6 +10,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Space Grotesk', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* REMOVE BLUE TOUCH HIGHLIGHT */
         }
 
         body {
@@ -377,6 +378,57 @@
             50% { opacity: 1; }
             100% { opacity: 0.5; }
         }
+
+        /* FLOATING MINI PLAYER STYLES */
+        #mini-player {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 10px 15px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+
+        .mini-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .mini-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mini-info h4 {
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mini-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mini-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 5px;
+        }
+
     </style>
 </head>
 <body>
@@ -394,10 +446,24 @@
     </div>
 </header>
 
-<!-- Song grid will be auto-generated here -->
 <div class="song-grid" id="song-grid"></div>
 
-<!-- Notification Window -->
+<div id="mini-player" onclick="maximizePlayer()">
+    <img src="" class="mini-thumb" id="mini-thumb">
+    <div class="mini-info">
+        <h4 id="mini-title">Track Name</h4>
+    </div>
+    <div class="mini-controls" onclick="event.stopPropagation()">
+        <button class="mini-btn" onclick="togglePlayPause()">
+            <svg id="m-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="m-pause-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        <button class="mini-btn" onclick="nextTrack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm8.5-12v12h2V6h-2zM16 6h2v12h-2z"/></svg>
+        </button>
+    </div>
+</div>
+
 <div id="notif-overlay" onclick="if(event.target===this) closeNotification()">
     <div class="notif-window">
         <button class="notif-back" onclick="closeNotification()">
@@ -419,9 +485,8 @@
     </div>
 </div>
 
-<!-- Player Window -->
 <div id="player-overlay" onclick="if(event.target===this) closePlayer()">
-    <div class="player-window">
+    <div class="player-window" id="player-window">
         <button class="player-back" onclick="closePlayer()">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor">
                 <path d="M9 2L4 7l5 5" stroke-width="1.8" stroke-linecap="round"/>
@@ -480,14 +545,10 @@
     const songUrls = [
         'https://youtu.be/3xbWRl-D53Q',   // Song 1
         'https://youtu.be/RT1voph97P8',   // Song 2
- 'https://music.youtube.com/watch?v=en8fjTxRyqI',   // Song 3
-        // Add new songs below – just paste the URL
-        // 'https://youtu.be/dQw4w9WgXcQ',
-        // 'https://www.youtube.com/watch?v=abcdefghijk'
+        'https://music.youtube.com/watch?v=en8fjTxRyqI',   // Song 3
     ];
     // ==================================================================================
 
-    // Extract video ID from various YouTube URL formats
     function extractVideoId(url) {
         const patterns = [
             /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
@@ -500,7 +561,6 @@
         return null;
     }
 
-    // Convert song URLs to video IDs
     const songs = songUrls.map(url => extractVideoId(url)).filter(id => id);
 
     let player;
@@ -514,35 +574,23 @@
     const frequencies = [32, 64, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
     const melodiousGains = [4, 3, 2, 1, 2, 3, 4, 3, 2, 1];
 
-    // Generate song grid dynamically with high-quality thumbnails
     function renderSongGrid() {
         const grid = document.getElementById('song-grid');
         grid.innerHTML = '';
-
         songs.forEach(videoId => {
             if (!videoId) return;
-
             const card = document.createElement('div');
             card.className = 'song-card';
             card.onclick = () => openPlayer(videoId);
-
             const thumbBox = document.createElement('div');
             thumbBox.className = 'thumb-box';
             const img = document.createElement('img');
-            
-            // Try high-res thumbnail first, fallback to medium, then low
             img.src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
             img.onerror = function() {
-                // If maxres fails, try hqdefault
-                this.onerror = function() {
-                    // If hqdefault fails, use default
-                    this.src = `https://img.youtube.com/vi/${videoId}/default.jpg`;
-                };
+                this.onerror = function() { this.src = `https://img.youtube.com/vi/${videoId}/default.jpg`; };
                 this.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
             };
-            
             thumbBox.appendChild(img);
-
             const info = document.createElement('div');
             info.className = 'song-info';
             const titleEl = document.createElement('h3');
@@ -551,14 +599,11 @@
             const artistEl = document.createElement('p');
             artistEl.id = `artist-${videoId}`;
             artistEl.textContent = 'YouTube';
-
             info.appendChild(titleEl);
             info.appendChild(artistEl);
             card.appendChild(thumbBox);
             card.appendChild(info);
             grid.appendChild(card);
-
-            // Fetch metadata
             fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`)
                 .then(r => r.json())
                 .then(data => {
@@ -569,10 +614,8 @@
         });
     }
 
-    // Initialize grid on page load
     document.addEventListener('DOMContentLoaded', renderSongGrid);
 
-    // YouTube API
     window.onYouTubeIframeAPIReady = () => {
         player = new YT.Player('yt-player', {
             height: '100%',
@@ -590,16 +633,21 @@
     };
 
     function onPlayerStateChange(event) {
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const mPlay = document.getElementById('m-play-icon');
+        const mPause = document.getElementById('m-pause-icon');
+
         if (event.data === YT.PlayerState.PLAYING) {
             isPlaying = true;
-            document.getElementById('play-icon').style.display = 'none';
-            document.getElementById('pause-icon').style.display = 'block';
+            playIcon.style.display = mPlay.style.display = 'none';
+            pauseIcon.style.display = mPause.style.display = 'block';
             startSeekTimer();
             connectEQ();
         } else if (event.data === YT.PlayerState.PAUSED) {
             isPlaying = false;
-            document.getElementById('play-icon').style.display = 'block';
-            document.getElementById('pause-icon').style.display = 'none';
+            playIcon.style.display = mPlay.style.display = 'block';
+            pauseIcon.style.display = mPause.style.display = 'none';
             stopSeekTimer();
         } else if (event.data === YT.PlayerState.ENDED) {
             nextTrack();
@@ -609,11 +657,16 @@
     function openPlayer(videoId) {
         currentVideoId = videoId;
         document.getElementById('player-overlay').style.display = 'flex';
+        document.getElementById('mini-player').style.display = 'none';
         document.body.style.overflow = 'hidden';
         document.getElementById('track-title').textContent = 'Loading...';
         document.getElementById('track-artist').textContent = 'Please wait';
         document.getElementById('album-art').src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-        history.pushState({player: true}, '', '#playing');
+        document.getElementById('mini-thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        
+        if (window.location.hash !== '#playing') {
+            history.pushState({player: true}, '', '#playing');
+        }
         
         if (player && player.loadVideoById) {
             player.loadVideoById(videoId);
@@ -622,18 +675,25 @@
         fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`)
             .then(r => r.json())
             .then(data => {
-                document.getElementById('track-title').textContent = data.title || 'Unknown';
+                document.getElementById('track-title').textContent = document.getElementById('mini-title').textContent = data.title || 'Unknown';
                 document.getElementById('track-artist').textContent = data.author_name || '';
-            })
-            .catch(() => {});
+            });
     }
 
     function closePlayer() {
         document.getElementById('player-overlay').style.display = 'none';
         document.body.style.overflow = '';
-        if (player && player.stopVideo) player.stopVideo();
-        stopSeekTimer();
+        if (currentVideoId) {
+            document.getElementById('mini-player').style.display = 'flex';
+        }
         if (window.location.hash === '#playing') history.back();
+    }
+
+    function maximizePlayer() {
+        document.getElementById('player-overlay').style.display = 'flex';
+        document.getElementById('mini-player').style.display = 'none';
+        document.body.style.overflow = 'hidden';
+        history.pushState({player: true}, '', '#playing');
     }
 
     function togglePlayPause() {
@@ -662,8 +722,7 @@
         if (!player || !player.getDuration) return;
         const rect = event.currentTarget.getBoundingClientRect();
         const pos = (event.clientX - rect.left) / rect.width;
-        const duration = player.getDuration();
-        player.seekTo(pos * duration);
+        player.seekTo(pos * player.getDuration());
     }
 
     function startSeekTimer() {
@@ -672,53 +731,38 @@
             if (!player || !player.getCurrentTime) return;
             const current = player.getCurrentTime();
             const duration = player.getDuration();
-            const percent = (current / duration) * 100;
-            document.getElementById('seek-fill').style.width = percent + '%';
+            document.getElementById('seek-fill').style.width = (current / duration * 100) + '%';
             document.getElementById('time-current').textContent = formatTime(current);
             document.getElementById('time-duration').textContent = formatTime(duration);
         }, 500);
     }
 
-    function stopSeekTimer() {
-        if (seekInterval) clearInterval(seekInterval);
-    }
-
-    function formatTime(seconds) {
-        if (!seconds) return '0:00';
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return mins + ':' + (secs < 10 ? '0' + secs : secs);
+    function stopSeekTimer() { if (seekInterval) clearInterval(seekInterval); }
+    function formatTime(s) { 
+        if (!s) return '0:00';
+        const m = Math.floor(s / 60); const sec = Math.floor(s % 60);
+        return m + ':' + (sec < 10 ? '0' + sec : sec);
     }
 
     function connectEQ() {
         if (!audioContext) {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            } catch (e) {
-                return;
-            }
+            try { audioContext = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
         }
         if (audioContext.state === 'suspended') audioContext.resume();
         setTimeout(() => {
             try {
                 const iframe = document.querySelector('#yt-player');
-                const video = iframe?.contentDocument?.querySelector('video') || 
-                             iframe?.contentWindow?.document.querySelector('video');
+                const video = iframe?.contentWindow?.document.querySelector('video');
                 if (video && !audioSource) {
                     audioSource = audioContext.createMediaElementSource(video);
-                    eqFilters = [];
-                    frequencies.forEach((freq, i) => {
+                    eqFilters = frequencies.map((freq, i) => {
                         const filter = audioContext.createBiquadFilter();
-                        filter.type = 'peaking';
-                        filter.frequency.value = freq;
-                        filter.Q.value = 1.4;
-                        filter.gain.value = melodiousGains[i];
-                        eqFilters.push(filter);
+                        filter.type = 'peaking'; filter.frequency.value = freq;
+                        filter.Q.value = 1.4; filter.gain.value = melodiousGains[i];
+                        return filter;
                     });
                     audioSource.connect(eqFilters[0]);
-                    for (let i = 0; i < eqFilters.length - 1; i++) {
-                        eqFilters[i].connect(eqFilters[i + 1]);
-                    }
+                    for (let i = 0; i < eqFilters.length - 1; i++) { eqFilters[i].connect(eqFilters[i + 1]); }
                     eqFilters[eqFilters.length - 1].connect(audioContext.destination);
                 }
             } catch (e) {}
@@ -737,11 +781,20 @@
         if (window.location.hash === '#info') history.back();
     }
 
+    // SWIPE NAVIGATION LOGIC
+    let touchStartY = 0;
+    const playerWindow = document.getElementById('player-window');
+    playerWindow.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, {passive: true});
+    playerWindow.addEventListener('touchend', e => {
+        const touchEndY = e.changedTouches[0].clientY;
+        if (Math.abs(touchEndY - touchStartY) > 100) closePlayer();
+    }, {passive: true});
+
     window.addEventListener('popstate', () => {
         if (document.getElementById('player-overlay').style.display === 'flex') {
             document.getElementById('player-overlay').style.display = 'none';
+            document.getElementById('mini-player').style.display = 'flex';
             document.body.style.overflow = '';
-            if (player && player.stopVideo) player.stopVideo();
         }
         if (document.getElementById('notif-overlay').style.display === 'flex') {
             document.getElementById('notif-overlay').style.display = 'none';
