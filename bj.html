@@ -693,7 +693,7 @@
             .then(r => r.json())
             .then(data => {
                 document.getElementById('track-title').textContent = document.getElementById('mini-title').textContent = data.title || 'Unknown';
-                document.getElementById('track-artist').textContent = data.author_name || '';
+                document.getElementById('track-artist').textContent = (data.author_name || '').replace(/\s*-\s*Topic$/i, '');
             });
     }
 
