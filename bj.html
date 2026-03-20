@@ -574,8 +574,21 @@
     let audioSource;
     let eqFilters = [];
     
-    const frequencies = [32, 64, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
-    const melodiousGains = [4, 3, 2, 1, 2, 3, 4, 3, 2, 1];
+    // Professional audio chain config
+    const eqBands = [
+        { freq: 32,    type: 'lowshelf',  gain: 3.5,  Q: 0.7  },
+        { freq: 64,    type: 'peaking',   gain: 3.0,  Q: 1.0  },
+        { freq: 125,   type: 'peaking',   gain: 1.5,  Q: 1.2  },
+        { freq: 250,   type: 'peaking',   gain: -1.0, Q: 1.4  },
+        { freq: 500,   type: 'peaking',   gain: -0.5, Q: 1.2  },
+        { freq: 1000,  type: 'peaking',   gain: 1.0,  Q: 1.0  },
+        { freq: 2500,  type: 'peaking',   gain: 2.0,  Q: 1.4  },
+        { freq: 5000,  type: 'peaking',   gain: 3.0,  Q: 1.2  },
+        { freq: 8000,  type: 'peaking',   gain: 3.5,  Q: 1.0  },
+        { freq: 12000, type: 'peaking',   gain: 2.5,  Q: 0.9  },
+        { freq: 16000, type: 'highshelf', gain: 4.0,  Q: 0.7  },
+    ];
+    let compressor, gainNode, limiterNode;
 
     function renderSongGrid() {
         const grid = document.getElementById('song-grid');
@@ -759,15 +772,80 @@
                 const video = iframe?.contentWindow?.document.querySelector('video');
                 if (video && !audioSource) {
                     audioSource = audioContext.createMediaElementSource(video);
-                    eqFilters = frequencies.map((freq, i) => {
-                        const filter = audioContext.createBiquadFilter();
-                        filter.type = 'peaking'; filter.frequency.value = freq;
-                        filter.Q.value = 1.4; filter.gain.value = melodiousGains[i];
-                        return filter;
+
+                    // 1. 11-band parametric EQ
+                    eqFilters = eqBands.map(band => {
+                        const f = audioContext.createBiquadFilter();
+                        f.type = band.type;
+                        f.frequency.value = band.freq;
+                        f.Q.value = band.Q;
+                        f.gain.value = band.gain;
+                        return f;
                     });
+
+                    // 2. Multiband compressor for dynamic punch
+                    compressor = audioContext.createDynamicsCompressor();
+                    compressor.threshold.value = -24;
+                    compressor.knee.value = 8;
+                    compressor.ratio.value = 3.5;
+                    compressor.attack.value = 0.003;
+                    compressor.release.value = 0.18;
+
+                    // 3. Stereo widener via mid-side splitter
+                    const splitter = audioContext.createChannelSplitter(2);
+                    const merger = audioContext.createChannelMerger(2);
+                    const midGain = audioContext.createGain();
+                    const sideGain = audioContext.createGain();
+                    midGain.gain.value = 1.0;
+                    sideGain.gain.value = 1.35; // widen stereo image
+
+                    // 4. Harmonic exciter (subtle high-freq saturation)
+                    const exciterGain = audioContext.createGain();
+                    exciterGain.gain.value = 0.18;
+                    const exciterHP = audioContext.createBiquadFilter();
+                    exciterHP.type = 'highpass';
+                    exciterHP.frequency.value = 3500;
+                    const waveShaper = audioContext.createWaveShaper();
+                    const curve = new Float32Array(256);
+                    for (let i = 0; i < 256; i++) {
+                        const x = (i * 2) / 256 - 1;
+                        curve[i] = (Math.PI + 80) * x / (Math.PI + 80 * Math.abs(x));
+                    }
+                    waveShaper.curve = curve;
+                    waveShaper.oversample = '4x';
+
+                    // 5. Output limiter (prevent clipping)
+                    limiterNode = audioContext.createDynamicsCompressor();
+                    limiterNode.threshold.value = -1.5;
+                    limiterNode.knee.value = 0;
+                    limiterNode.ratio.value = 20;
+                    limiterNode.attack.value = 0.001;
+                    limiterNode.release.value = 0.05;
+
+                    // 6. Output gain
+                    gainNode = audioContext.createGain();
+                    gainNode.gain.value = 1.15;
+
+                    // Chain: source → EQ filters → compressor → splitter → stereo widen → merger → exciter mix → limiter → gain → output
                     audioSource.connect(eqFilters[0]);
-                    for (let i = 0; i < eqFilters.length - 1; i++) { eqFilters[i].connect(eqFilters[i + 1]); }
-                    eqFilters[eqFilters.length - 1].connect(audioContext.destination);
+                    for (let i = 0; i < eqFilters.length - 1; i++) eqFilters[i].connect(eqFilters[i + 1]);
+                    eqFilters[eqFilters.length - 1].connect(compressor);
+
+                    compressor.connect(splitter);
+                    splitter.connect(midGain, 0);
+                    splitter.connect(sideGain, 1);
+                    midGain.connect(merger, 0, 0);
+                    sideGain.connect(merger, 0, 1);
+
+                    // Exciter parallel path
+                    compressor.connect(exciterHP);
+                    exciterHP.connect(waveShaper);
+                    waveShaper.connect(exciterGain);
+                    exciterGain.connect(merger);
+
+                    merger.connect(limiterNode);
+                    limiterNode.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
                 }
             } catch (e) {}
         }, 1000);
