@@ -72,10 +72,11 @@
 
         .song-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
             max-width: 800px;
             width: 100%;
+            padding: 0 4px;
         }
 
         .song-card {
@@ -91,10 +92,10 @@
         .thumb-box {
             width: 100%;
             aspect-ratio: 1 / 1;
-            background: #111;
+            background: #050505;
             border-radius: 20px;
             overflow: hidden;
-            border: 1px solid #222;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 15px;
         }
 
@@ -400,8 +401,10 @@
         .mini-thumb {
             width: 40px;
             height: 40px;
+            aspect-ratio: 1 / 1;
             border-radius: 10px;
             object-fit: cover;
+            flex-shrink: 0;
         }
 
         .mini-info {
@@ -598,7 +601,7 @@
             titleEl.textContent = 'Loading...';
             const artistEl = document.createElement('p');
             artistEl.id = `artist-${videoId}`;
-            artistEl.textContent = 'YouTube';
+            artistEl.textContent = '';
             info.appendChild(titleEl);
             info.appendChild(artistEl);
             card.appendChild(thumbBox);
@@ -608,7 +611,8 @@
                 .then(r => r.json())
                 .then(data => {
                     document.getElementById(`title-${videoId}`).textContent = data.title || 'Unknown Title';
-                    document.getElementById(`artist-${videoId}`).textContent = data.author_name || 'YouTube';
+                    const rawArtist = data.author_name || 'YouTube';
+                    document.getElementById(`artist-${videoId}`).textContent = rawArtist.replace(/\s*-\s*Topic$/i, '');
                 })
                 .catch(() => {});
         });
@@ -662,7 +666,7 @@
         document.getElementById('track-title').textContent = 'Loading...';
         document.getElementById('track-artist').textContent = 'Please wait';
         document.getElementById('album-art').src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-        document.getElementById('mini-thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        document.getElementById('mini-thumb').src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
         
         if (window.location.hash !== '#playing') {
             history.pushState({player: true}, '', '#playing');
